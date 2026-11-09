@@ -1,0 +1,22 @@
+# Configuracion base para Render. Los valores sensibles se inyectan con
+# variables de entorno INVIDIOUS_* (ver render.yaml), que tienen prioridad.
+database_url: postgres://kemal:kemal@localhost:5432/invidious
+hmac_key: "CHANGE_ME!!"
+check_tables: true
+port: 10000
+host_binding: 0.0.0.0
+https_only: true
+external_port: 443
+log_level: Info
+colorize_logs: false
+registration_enabled: false
+login_enabled: true
+captcha_enabled: false
+statistics_enabled: false
+disable_proxy: false
+channel_threads: 0
+jobs:
+  refresh_channels:
+    enable: false
+  subscribe_to_feeds:
+    enable: false

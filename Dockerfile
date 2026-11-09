@@ -29,7 +29,7 @@ FROM alpine:3.22
 RUN apk add --no-cache rsvg-convert ttf-opensans tini tzdata
 WORKDIR /invidious
 RUN addgroup -g 1000 -S invidious && adduser -u 1000 -S invidious -G invidious
-COPY --chown=invidious ./config/config.yml ./config/config.yml
+COPY --chown=invidious ./config/config.render.yml ./config/config.yml
 COPY ./config/sql/ ./config/sql/
 COPY ./locales/ ./locales/
 COPY --from=builder /invidious/assets ./assets/
