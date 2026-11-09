@@ -1,5 +1,5 @@
 # Build multi-etapa para Render.com
-FROM docker.io/crystallang/crystal:1.16.3-alpine AS builder
+FROM docker.io/crystallang/crystal:1-alpine AS builder
 
 RUN apk add --no-cache sqlite-static yaml-static git
 
