@@ -1,0 +1,27 @@
+# Blueprint de Render.com para Invidious
+databases:
+  - name: invidious-db
+    databaseName: invidious
+    user: kemal
+    plan: free
+
+services:
+  - type: web
+    name: invidious
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter        # el build compila Crystal: el plan free suele quedarse sin RAM
+    healthCheckPath: /
+    envVars:
+      - key: INVIDIOUS_DATABASE_URL
+        fromDatabase:
+          name: invidious-db
+          property: connectionString
+      - key: INVIDIOUS_HMAC_KEY
+        generateValue: true
+      - key: INVIDIOUS_PORT
+        value: "10000"
+      - key: INVIDIOUS_DOMAIN
+        sync: false      # ej: invidious.onrender.com
+      - key: INVIDIOUS_INVIDIOUS_COMPANION_KEY
+        sync: false      # opcional: clave de invidious-companion
