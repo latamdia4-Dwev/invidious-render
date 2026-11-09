@@ -13,6 +13,11 @@ COPY ./scripts/ ./scripts/
 COPY ./assets/ ./assets/
 COPY ./videojs-dependencies.yml ./videojs-dependencies.yml
 
+# Dependencias del reproductor: se descargan en un paso aislado (con log y timeout)
+# en vez de dentro de una macro de compilacion, donde un fallo de red queda mudo.
+RUN timeout 600 crystal run ./scripts/fetch-player-dependencies.cr -- --minified && \
+    ls -R ./assets/videojs | head -50
+
 # src/invidious.cr requiere un repo git para CURRENT_BRANCH/COMMIT/VERSION;
 # el ZIP no incluye .git, se genera uno sintetico.
 RUN git init -q -b master . && \
@@ -21,8 +26,9 @@ RUN git init -q -b master . && \
 
 # -no-pie: ver https://github.com/crystal-lang/distribution-scripts/issues/445
 RUN crystal build ./src/invidious.cr \
-    --release -s -p -t --mcpu=x86-64-v2 \
+    --release -p --mcpu=x86-64-v2 \
     --static --warnings all \
+    -Dskip_videojs_download -Dminified_player_dependencies \
     --link-flags "-lxml2 -llzma -no-pie"
 
 FROM alpine:3.22
