@@ -1,4 +1,7 @@
+# ------------------------------------------------------------------------------
 # Build multi-etapa para Render.com
+# Version: 2.20261112.8
+# ------------------------------------------------------------------------------
 FROM docker.io/crystallang/crystal:1-alpine AS builder
 
 RUN apk add --no-cache sqlite-static yaml-static git
@@ -32,7 +35,7 @@ RUN crystal build ./src/invidious.cr \
     --link-flags "-lxml2 -llzma -no-pie"
 
 FROM alpine:3.22
-RUN apk add --no-cache rsvg-convert ttf-opensans tini tzdata
+RUN apk add --no-cache rsvg-convert ttf-opensans tini tzdata ca-certificates
 WORKDIR /invidious
 RUN addgroup -g 1000 -S invidious && adduser -u 1000 -S invidious -G invidious
 COPY --chown=invidious ./config/config.render.yml ./config/config.yml

@@ -1,4 +1,13 @@
-# Blueprint de Render.com para Invidious
+# ------------------------------------------------------------------------------
+# Blueprint de Render.com para Invidious Full-Stack con Video Playback
+# Version: 2.20261112.8
+# ------------------------------------------------------------------------------
+# Arquitectura:
+#   1. Base de datos PostgreSQL gestionada (invidious-db)
+#   2. Servicio Web Invidious compilado en Crystal (invidious)
+#   3. Servicio Privado Invidious Companion para extraccion de streams (invidious-companion)
+# ------------------------------------------------------------------------------
+
 databases:
   - name: invidious-db
     databaseName: invidious
@@ -6,11 +15,14 @@ databases:
     plan: free
 
 services:
+  # ----------------------------------------------------------------------------
+  # Servicio Web Principal: Invidious
+  # ----------------------------------------------------------------------------
   - type: web
     name: invidious
     runtime: docker
     dockerfilePath: ./Dockerfile
-    plan: starter        # el build compila Crystal: el plan free suele quedarse sin RAM
+    plan: starter        # Recomendado: starter (el build compila Crystal estatico)
     healthCheckPath: /
     envVars:
       - key: INVIDIOUS_DATABASE_URL
@@ -22,6 +34,31 @@ services:
       - key: INVIDIOUS_PORT
         value: "10000"
       - key: INVIDIOUS_DOMAIN
-        sync: false      # ej: invidious.onrender.com
+        sync: false      # Ej: tu-instancia.onrender.com
       - key: INVIDIOUS_INVIDIOUS_COMPANION_KEY
-        sync: false      # opcional: clave de invidious-companion
+        value: "ea6de19709a408df"
+      - key: INVIDIOUS_FORCE_LOCAL
+        value: "true"
+      - key: INVIDIOUS_SERVER_ID_COOKIE_NAME
+        value: "COMPANION_ID"
+      - key: INVIDIOUS_CHECK_BACKENDS_INTERVAL
+        value: "30"
+
+  # ----------------------------------------------------------------------------
+  # Servicio Privado: Invidious Companion (resuelve tokens y streams de YouTube)
+  # ----------------------------------------------------------------------------
+  - type: pserv
+    name: invidious-companion
+    runtime: image
+    image:
+      url: quay.io/invidious/invidious-companion:latest
+    plan: free           # O starter segun disponibilidad en Render
+    envVars:
+      - key: SERVER_SECRET_KEY
+        value: "ea6de19709a408df"
+      - key: PORT
+        value: "8282"
+      - key: HOST
+        value: "0.0.0.0"
+      - key: SERVER_BASE_PATH
+        value: "/companion"

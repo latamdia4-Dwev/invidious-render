@@ -1,5 +1,12 @@
-# Configuracion base para Render. Los valores sensibles se inyectan con
-# variables de entorno INVIDIOUS_* (ver render.yaml), que tienen prioridad.
+# ------------------------------------------------------------------------------
+# Invidious Configuration for Render.com (Root Mirror)
+# Version: 2.20261112.8
+# ------------------------------------------------------------------------------
+# Configuracion optimizada para despliegue en Render.com con reproduccion
+# de video funcional mediante integracion con Invidious Companion.
+# Los valores sensibles pueden ser sobrescritos mediante variables INVIDIOUS_*.
+# ------------------------------------------------------------------------------
+
 database_url: postgres://kemal:kemal@localhost:5432/invidious
 hmac_key: "CHANGE_ME!!"
 check_tables: true
@@ -7,21 +14,59 @@ port: 10000
 host_binding: 0.0.0.0
 https_only: true
 external_port: 443
+
+# Niveles de log
 log_level: Info
 colorize_logs: false
+
+# Autenticacion y caracteristicas
 registration_enabled: false
 login_enabled: true
 captcha_enabled: false
 statistics_enabled: false
+popular_enabled: true
+enable_user_notifications: true
 disable_proxy: false
 channel_threads: 0
+
+# Trabajos en segundo plano desactivados para ahorrar recursos en Render
 jobs:
   refresh_channels:
     enable: false
   subscribe_to_feeds:
     enable: false
-# Sin Redis en Render: cache de video en memoria (LRU), tamano reducido para 512 MB de RAM.
+
+# ------------------------------------------------------------------------------
+# Invidious Companion - Requerido para resolucion de streams de YouTube
+# ------------------------------------------------------------------------------
+invidious_companion:
+  - private_url: "http://invidious-companion:8282"
+
+# Clave secreta alfanumerica de 16 caracteres [a-zA-Z0-9] compartida con Companion
+invidious_companion_key: "ea6de19709a408df"
+
+# Monitoreo de salud del backend companion y proxy local forzado
+check_backends_interval: 30
+check_backends_path: "/healthz"
+force_local: true
+server_id_cookie_name: "COMPANION_ID"
+
+# ------------------------------------------------------------------------------
+# Cache de video en memoria (LRU) - Sin dependencia de Redis externo en Render
+# ------------------------------------------------------------------------------
 video_cache:
   enabled: true
   backend: lru
   lru_max_size: 2000
+  compress: false
+
+# ------------------------------------------------------------------------------
+# Preferencias de usuario predeterminadas (reproduccion DASH fluida)
+# ------------------------------------------------------------------------------
+default_user_preferences:
+  quality: dash
+  quality_dash: auto
+  autoplay: false
+  save_player_pos: true
+  extend_desc: false
+  region: US
